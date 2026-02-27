@@ -1,0 +1,124 @@
+# AINN Stack — Example Configuration
+# Copy to config.yaml and fill in your values.
+
+# ---------------------------------------------------------------------------
+# RSS Feed Sources
+# ---------------------------------------------------------------------------
+rss:
+  polling_interval: 90        # seconds between feed checks
+  debounce_timeout: 10        # minimum seconds between story transitions
+  max_age_hours: 48           # reject stories older than this
+  feeds:
+    # Add your feeds here. Priority 1 = highest (breaks queue first).
+    # Categories: core | markets | tech | incidents | science | dev | crypto | general
+    - url: "https://rss.nytimes.com/services/xml/rss/nyt/HomePage.xml"
+      category: core
+      priority: 1
+    - url: "https://feeds.arstechnica.com/arstechnica/index"
+      category: tech
+      priority: 2
+    - url: "https://www.theverge.com/rss/index.xml"
+      category: tech
+      priority: 2
+    - url: "https://techcrunch.com/feed/"
+      category: tech
+      priority: 2
+    - url: "https://news.ycombinator.com/rss"
+      category: dev
+      priority: 3
+    # Add more feeds following the same pattern...
+
+# ---------------------------------------------------------------------------
+# RTMP Stream Targets
+# ---------------------------------------------------------------------------
+rtmp_targets:
+  - name: "Twitch"
+    url: "rtmp://live.twitch.tv/app/YOUR_TWITCH_STREAM_KEY"
+    enabled: false
+  - name: "YouTube"
+    url: "rtmp://a.rtmp.youtube.com/live2/YOUR_YOUTUBE_STREAM_KEY"
+    enabled: false
+  - name: "Owncast (local)"
+    url: "rtmp://localhost:1935/live/YOUR_OWNCAST_STREAM_KEY"
+    enabled: true
+
+# ---------------------------------------------------------------------------
+# Owncast (self-hosted relay)
+# ---------------------------------------------------------------------------
+owncast:
+  host: "http://localhost:8080"
+  admin_password: "YOUR_OWNCAST_ADMIN_PASSWORD"
+
+# ---------------------------------------------------------------------------
+# TTS — Piper (local, offline)
+# Download models: https://huggingface.co/rhasspy/piper-voices
+# ---------------------------------------------------------------------------
+tts:
+  engine: "piper"
+  model_dir: "models/piper"
+  default_model: "en_US-lessac-medium"
+  sample_rate: 22050
+
+# ---------------------------------------------------------------------------
+# Anchor Personas
+# Define as many anchors as you want. The pipeline cycles through them.
+# Plug in your LLM in anchor_cycler.py to give each a unique voice.
+# ---------------------------------------------------------------------------
+anchors:
+  rotation_interval: 60       # seconds per anchor before rotating
+  cycle_order:
+    - name: "Anchor A"
+      focus: "headline framing"
+      perspective: "Authoritative news veteran"
+      color: "#FF0000"
+      pitch: 1.03
+    - name: "Anchor B"
+      focus: "analysis and critique"
+      perspective: "Skeptical independent"
+      color: "#0000FF"
+      pitch: 0.92
+    - name: "Anchor C"
+      focus: "markets and data"
+      perspective: "Data-driven analyst"
+      color: "#00FF00"
+      pitch: 1.0
+
+# ---------------------------------------------------------------------------
+# Visuals
+# ---------------------------------------------------------------------------
+visuals:
+  lower_third:
+    enabled: true
+    height: 120
+    font_size: 18
+    update_per_anchor: true
+  ticker:
+    enabled: true
+    speed: 2
+
+# ---------------------------------------------------------------------------
+# Image Generation (story backdrop)
+# Set engine: "none" to use static standby_background.png
+# ---------------------------------------------------------------------------
+image_gen:
+  engine: "none"              # options: none | stable_diffusion | dalle
+  fallback: "assets/standby_background.png"
+
+# ---------------------------------------------------------------------------
+# LLM Backend (for anchor script generation)
+# Used by your AnchorCycler implementation
+# ---------------------------------------------------------------------------
+llm:
+  backend: "ollama"           # options: ollama | openai | anthropic
+  model: "YOUR_MODEL_NAME"    # e.g. llama3, mistral, gpt-4o
+  host: "http://localhost:11434"
+  api_key: ""                 # leave blank for local ollama
+
+# ---------------------------------------------------------------------------
+# Logging
+# ---------------------------------------------------------------------------
+logging:
+  level: "INFO"
+  log_dir: "logs"
+  max_bytes: 10485760
+  backup_count: 3
